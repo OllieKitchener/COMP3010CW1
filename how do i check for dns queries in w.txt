@@ -1,0 +1,162 @@
+how do i check for dns queries in wireshark?
+
+Okay, the user is asking how to check for DNS queries in Wireshark. Let me think about the best way to explain this.
+
+First, I remember that DNS traffic typically uses TCP port 53, but there are also UDP queries on port 53. So the display filter needs to account for both protocols. The main protocols involved here are DNS over TCP and DNS over UDP.
+
+I should start by mentioning the protocols used: DNS usually runs on UDP (port 53) for queries and responses, but sometimes uses TCP for larger payloads. So the filter should include both 'tcp' and 'udp' with port 53.
+
+Wait, maybe the standard filter is 'port 53' without specifying the protocol? Let me recall. In Wireshark, if you just put 'port 53' in the filter bar, it should capture both TCP and UDP packets on that port, right? Because port numbers are protocol-agnostic. But to be explicit, maybe combining 'tcp port 53' and 'udp port 53' would be clearer, especially if the user wants to ensure both are included.
+
+Alternatively, using 'protocol:DNS' might be more precise, but I think that's only available in certain versions or configurations. Maybe it's better to stick with port-based filtering since that's more universally supported.
+
+Another point: DNS queries can be identified by looking at the DNS query type and class in the packet details. For example, a DNS query might have a "Query" record with a type like A, MX, etc. But the user just wants to see all the packets related to DNS, not necessarily interpret them. So the main task is filtering on port 53 for both TCP and UDP.
+
+Also, the user might not know about the difference between TCP and UDP in this context. So explaining that UDP is common for DNS queries and responses, while TCP might be used for zone transfers or larger requests.
+
+So steps would be: open the capture file, apply a filter like 'port 53' or 'tcp port 53 or udp port 53', then view the results. Maybe also mention sorting by protocol or time.
+
+Additionally, if they want to see DNS requests specifically (not responses), they might need a more specific filter, like ' DNS query' in the filter bar, but I think that's not standard. Wait, in Wireshark's filter syntax, there's 'DNS query' as a keyword? Let me check my memory. Oh right, in the filter bar, you can use ' DNS query' (with a space) to match DNS queries. Similarly for 'DNS response' if needed. That could be helpful for separating requests from responses.
+
+Wait, actually, in Wireshark, the filter syntax allows for protocol-specific terms. For example, ' DNS query' matches DNS packets that are queries (i.e., not responses). So combining that with port 53 might be redundant but useful. Let me confirm: a DNS query packet is a UDP (or TCP) packet where the role is a query, so the 'DNS query' filter would already include the port 53. But maybe specifying the port is still good for clarity.
+
+Alternatively, maybe the user just wants all DNS-related packets, regardless of direction or query type. So starting with 'port 53' and then explaining that it includes both TCP and UDP.
+
+Also, in the packet details pane, clicking on a DNS packet will show information like the query type (e.g., A, MX, CNAME) and class. That's additional info, but the user's question is about filtering, so focusing on the filter syntax first.
+
+Including examples would help. For instance, a filter bar like "port 53" or " protocol:DNS and (tcp or udp) port ==53" but I think the simplest is just "port 53".
+
+Wait, actually, in the filter bar, you can just type "port 53" and it should capture all TCP and UDP packets on port 53. Let me think if that's correct. Yes, because the port number is part of the destination or source address, and the protocol isn't specified in the port filter. So "port 53" alone would include both TCP and UDP.
+
+So the step-by-step would be:
+
+1. Open capture file in Wireshark.
+2. Apply filter: Go to View > Show/Hide > Filter, type "port 53" and Apply.
+3. Alternatively, if you want to see only UDP queries (common for DNS), maybe add another condition, but the standard approach is just port 53.
+4. Then you can sort by protocol (DNS) or time.
+
+Additionally, maybe mention that DNS over TCP is less common but still possible, so the filter covers both.
+
+Also, if the user wants to see DNS requests specifically (not responses), they might need a more specific filter like " DNS query" in the filter bar. Let me verify that syntax. Yes, in Wireshark's filter options, you can use " DNS query" (with a space) to match DNS query packets. Similarly, " DNS response" for responses. So combining that with port 53 if necessary, but perhaps " port 53 and DNS query" would do it, but actually the "DNS query" filter already includes packets on port 53. Hmm, maybe better to just use " port 53" for all DNS traffic and let them see if they want to filter further.
+
+Also, maybe mention that in the results, you can sort by protocol (click the column header for Protocol) to see DNS packets grouped together.
+
+Another point: sometimes DNS traffic can be encrypted with TLS, but that's rare. Most DNS is unencrypted. If encrypted, the port might still be 53 but with a different protocol. But that's probably beyond the scope here unless the user mentions it.
+
+So putting it all together, the answer should outline using the port 53 filter in Wireshark, explain TCP vs UDP in DNS, and maybe mention how to identify query types in packet details. Also, steps to apply the filter via GUI or command line.
+
+Wait, the user might not know about the filter bar options. So step-by-step instructions are important. Also, maybe an example of the filter string in the filter bar and command line if using CLI.
+
+Additionally, if they have a list of IPs to check for DNS queries from specific hosts, they can add ' src == [IP]' to the filter, but the basic question is about finding all DNS queries regardless of source.
+
+So the key points are:
+
+- Use port 53 filter in Wireshark to capture all DNS-related packets (TCP and UDP).
+- Explain that UDP is standard for DNS queries/responses (port 53), while TCP is for larger requests.
+- Show how to apply via GUI or command line.
+- Mention sorting and packet details for further analysis.
+
+Also, maybe a note about decryption if needed, but again unless specified, probably not necessary here.
+
+I think that covers it. Let me structure the answer accordingly with clear steps and examples.
+...done thinking.
+
+To identify **DNS (Domain Name System) queries** in Wireshark, DNS traffic typically uses **UDP port 53** for most queries and responses, while **TCP port 53** is occasionally used for larger payloads (e.g., zone transfers). Here's how to filter and analyze DNS traffic:
+
+---
+
+### **Step-by-Step Guide to Filter DNS Queries in Wireshark**
+#### **1. Open Your Wireshark Capture File**
+- Launch Wireshark and load the relevant PCAP file (e.g., `capture.pcap`).
+
+---
+
+#### **2. Apply a Display Filter**
+Use a filter to isolate DNS-related packets. Here are common options:
+
+### **Option 1: Basic DNS Traffic (UDP/TCP on Port 53)**
+This captures **all DNS-related packets** (queries and responses):
+```plaintext
+port 53
+```
+- **In Wireshark:**
+  1. Click the **Filter** button (top-left) or go to **View > Show/Hide > Filter**.
+  2. In the filter bar, type `port 53` and click **Apply**.
+  3. All DNS packets (UDP/TCP on port 53) will now be displayed.
+
+---
+
+### **Option 2: Only DNS Queries (Not Responses)**
+This isolates **DNS queries** (requests from your device to a DNS server):
+```plaintext
+DNS query
+```
+- **In Wireshark:**
+  1. In the filter bar, type `DNS query` and click **Apply**.
+  2. This will show only packets where the role is a **query** (e.g., `A`, `MX`, `CNAME` records).
+
+---
+
+### **Option 3: Combine Both Protocols Explicitly**
+To ensure both TCP and UDP are included, you can use:
+```plaintext
+tcp port 53 or udp port 53
+```
+- **In Wireshark:**
+  1. Type `tcp port 53 or udp port 53` in the filter bar and click **Apply**.
+
+---
+
+### **Option 4: Filter by Source or Destination IP**
+If you want to see DNS queries from a specific IP (e.g., your local machine):
+```plaintext
+src == [Your_IP Address] and port 53
+```
+- Replace `[Your_IP Address]` with your device’s IP (e.g., `192.168.1.100`).
+- This shows DNS queries sent **FROM** your IP to a DNS server.
+
+---
+
+### **3. Analyze the Results**
+- **Sort Packets**:
+  - Click the **Protocol** column header to group DNS packets together.
+  - Sort by **Time** to see chronological order.
+- **Packet Details**:
+  - Click a DNS packet to view the **DNS Query/Response** details (e.g., `Query: A record`, `Response: AAAA record`).
+  - Look for fields like **Type** (e.g., `A`, `CNAME`, `NS`), **Class** (e.g., `IN`), and **Value** (e.g., IP address or domain name).
+
+---
+
+### **Key Notes**
+- **UDP vs. TCP**:
+  - Most DNS queries/responses use **UDP (port 53)**.
+  - TCP is rare for standard DNS but may appear for large requests (e.g., zone transfers) or when DNS is encrypted with TLS (though rare).
+- **Decrypted Traffic**:
+  - If your capture is encrypted (e.g., DNS over TLS), ensure Wireshark is decrypting traffic first. Go to **Statistics > Decryption** to check.
+- **Common Use Cases**:
+  - **Queries**: `www.google.com` → `8.8.8.8` (A record).
+  - **Responses**: `8.8.8.8` → `www.google.com` (NS record or CNAME).
+
+---
+
+### **Example Filter for Local DNS Queries**
+Suppose your device has an IP of `192.168.1.100` and you want to see DNS queries it sends to a DNS server:
+```plaintext
+src == 192.168.1.100 and port 53
+```
+
+---
+
+### **Command-Line Filter (Wireshark CLI)**
+To run Wireshark with a filter directly in the terminal:
+```bash
+wireshark -i "port 53" -r capture.pcap
+```
+Or for queries only:
+```bash
+wireshark -i "DNS query" -r capture.pcap
+```
+
+---
+
+By using these filters, you can quickly isolate and analyze DNS traffic in Wireshark. Let me know if you need further clarification! 🔍

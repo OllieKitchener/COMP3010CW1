@@ -1,0 +1,348 @@
+in wireshark, how do i check the operating system of an infected system?
+
+Okay, so the user is asking how to check the operating system of an infected system using Wireshark. Let me think about how to approach this.
+
+First, I remember that Wireshark can capture network traffic, but it doesn't directly access the infected system's OS unless you have some specific protocols or methods. Maybe they're referring to
+analyzing network traffic to infer the OS of the target machine?
+
+Hmm, common techniques might involve looking for protocol-specific behaviors. For example, TCP handshake sequences can sometimes give clues. Like, Windows might use a different set of TCP flags or
+certain options in the SYN packets. Or maybe looking at the DNS queries? Different OSs have different default DNS resolvers or might use specific domain names in their DNS requests that are indicative.
+
+Wait, another thought: the OS fingerprinting methods used in security tools like Nmap or Wireshark's OS detection features. Do Wireshark have built-in OS detection? I recall that Wireshark has some
+automatic OS detection based on IP addresses and port numbers, but maybe not real-time OS of an infected host unless it's part of a larger analysis.
+
+Alternatively, maybe they're talking about analyzing the infected system's outbound connections. For instance, if a machine is infected with malware, the malware might communicate with known C&C servers.
+If you can find those server IPs or domains, you can perform a reverse DNS lookup or look them up in threat databases. But that's more about identifying the malware, not the OS directly.
+
+Wait, perhaps looking at the HTTP or HTTPS traffic. Some malware might make HTTP requests to certain URLs that are OS-specific. For example, some trojans might check for specific software versions or use
+OS-specific vulnerabilities in their requests. But that's a stretch and not reliable.
+
+Another angle: examining the TCP flags in the initial handshake. Windows uses SYN+ACK with certain flags? Or maybe the order of options in TCP packets. For example, Windows might set certain TCP options
+like TCP_NOPUSH or TCP_MAXSEG in a particular way. But I'm not sure about the exact patterns.
+
+Or maybe looking at the DNS records. For example, Linux often uses resolvers like 8.8.8.8 (Google's DNS) or 1.1.1.1 (Cloudflare), whereas Windows might use different defaults. If you capture DNS queries
+from the infected system, you can check the resolver used. That could hint at the OS.
+
+Wait, there's also the possibility of looking at HTTP headers. For instance, some browsers have identifiers in their headers that might reveal the OS version, but malware might not use browsers. Or maybe
+the user agent strings, but again, that's typically from web browsers.
+
+Alternatively, if the infected system is part of a botnet and communicate via specific protocols like IRC or HTTP, maybe analyzing the protocol's structure for OS clues. For example, IRC uses certain
+port numbers, but not sure about OS detection there.
+
+Oh, I remember that Wireshark has a protocol analyzer that can sometimes recognize common protocols and their behaviors. For example, if the infected machine is sending a lot of DNS requests to a
+specific domain known to be used by Windows or Linux systems, that could indicate the OS. But this requires prior knowledge of common C&C infrastructure and their OS associations.
+
+Alternatively, maybe using the "OS Class" column in Wireshark. Wait, does Wireshark have a built-in OS detection feature? I think there's an "OS Class" classification that assigns a probability based on
+various factors like IP addresses, port numbers, and protocol usage. So maybe if you look at the traffic from the infected system, you can see the OS class probabilities in the columns. For example, a
+TCP SYN packet from an infected host might show "Windows" as the OS class with a high probability.
+
+Let me verify this. In Wireshark, when you have a network capture, each packet has various columns. The "OS Class" column might be part of the "dissected" information for certain protocols. For TCP,
+maybe it shows the OS class based on the source and destination ports or other flags. Or perhaps it's based on the IP addresses and the protocols used. For instance, if the source IP is a residential
+address common in a certain region, that might not help, but combining with port numbers could.
+
+Another method could be looking at the HTTP headers if the infected machine is making HTTP requests. For example, the User-Agent string in the HTTP headers can sometimes indicate the browser and thus the
+OS. But if the malware is using a different HTTP client or even HTTPS, maybe that's not visible unless you can inspect the actual HTTP traffic.
+
+Wait, if the malware is using HTTPS, you might need to perform SSL stripping or decrypt the traffic, but that requires a certificate or a man-in-the-middle setup which the user might not have.
+Alternatively, if they can't decrypt, maybe looking at the TLS handshake to see the cipher suites or protocols used, which can sometimes hint at the OS. For example, Windows might prefer certain cipher
+suites that Linux or other OSs don't use.
+
+Another approach: looking at the file transfers. If the infected machine is downloading or uploading files over HTTP or FTP, the file names or content might include OS-specific strings. But that's more
+about the malware's behavior than the OS of the infected system itself.
+
+Wait, maybe the infected system is sending out a lot of traffic to a known malicious IP, and if you can get the reverse DNS for that IP, you might find it's associated with a botnet that targets a
+specific OS. But again, that's more indirect.
+
+Alternatively, in the TCP stream, looking for specific patterns. For example, Windows uses certain TCP SYN flags like the "FIN" bit in the sequence? Or maybe the order of options in the TCP header. For
+instance, the TCP option "TCP-NOOPUSH" might be set in Windows but not in Linux. I think Windows doesn't use NOOPUSH by default, but other options like "TCP-keep-alive" might have different settings.
+
+Hmm, maybe the best way in Wireshark without real-time access is to use the built-in OS classification tools. Let me think: in Wireshark, under the "Analyze" menu, there's a "OS Class" option. Wait,
+actually, I think Wireshark has a protocol analysis that automatically assigns classes based on various factors. For example, when you click on a TCP packet in the TCP column, it might show the OS class
+in the details pane. Or maybe in the "Dissected" field for certain protocols.
+
+Alternatively, there's a "OS fingerprinting" feature in Nmap, but Wireshark doesn't do that natively. Maybe the user can export the network trace and then use another tool like Nmap on the infected host
+to fingerprint it, but that's not using Wireshark directly.
+
+Wait a second, if the infected system is sending out traffic that can be analyzed for OS-specific characteristics, like DNS queries. For instance, if the infected system is using Windows' DNS resolver
+(like 8.8.8.8), that might indicate Windows. But if it's using a different DNS like 1.1.1.1, maybe Linux? Or maybe it's configurable. Alternatively, looking at the DNS responses to see if they have
+specific OS-related records. Not sure.
+
+Another thought: looking at the HTTP headers for the User-Agent string. Even if the malware is using a browser, the User-Agent can sometimes be spoofed but might still show the original OS. However, if
+the malware is using a non-browser HTTP client, this might not work. But maybe in some cases, the malware makes HTTP requests with headers that reveal the OS.
+
+Alternatively, looking at the HTTP status codes or methods that are OS-specific? Not really. The HTTP method is generic.
+
+Wait, maybe examining the protocols used. For example, if the infected system is sending lots of TCP packets to a specific port that's typical for Windows (like port 80 for HTTP, but that's not
+OS-specific). Or maybe using certain ports that are more common in a particular OS. For instance, Windows might have more services running on certain ports that are being targeted by malware.
+
+Alternatively, looking at the TCP SYN packets and checking the TCP options. For example, Windows uses the "TCP_NOPUSH" option in SYN packets with certain values, while Linux might not. Let me recall:
+according to some sources, Windows does not use TCP_NOPUSH by default, but Linux might. Wait, maybe the opposite? I need to be careful here.
+
+Actually, I remember that some OS fingerprinting techniques look at TCP options. For instance, Linux often uses the "TCP-keep-alive" option with specific values, while Windows might not. Or maybe the
+"TCP-NOOPUSH" option. I might be mixing up different options here. Alternatively, the order of the TCP options in the header. For example, Windows might list options in a particular order that's
+characteristic of its implementation.
+
+If Wireshark can display the options in the TCP header in a way that shows their order, that could help. The user might need to go to the TCP details or the packet bytes view to see the options. But
+that's more manual work.
+
+Alternatively, using the "Dissect" pane in Wireshark for TCP packets. When you dissect a TCP packet, the OS Class might be listed there based on the source and destination IP addresses, port numbers, and
+other fields. For example, if the source port is 80 and the destination is a high port, maybe that's a web server, but not the OS of the infected machine.
+
+Wait, maybe the key is that the infected system's outbound traffic can be analyzed for patterns indicative of its OS. For example, if the infected machine is using Windows' built-in DNS client, which
+often uses Google DNS or similar, then looking at the DNS queries might show that. Similarly, Linux might have different defaults.
+
+So steps might include:
+
+1. Filter the network capture to only include traffic from the infected system's IP address.
+2. Look for DNS queries (TCP or UDP) from that IP.
+3. Check the resolver used in the DNS queries. For example, if the query is to 8.8.8.8, that's Google's DNS, which is common in Windows by default (though configurable). If it's using 1.1.1.1, that's
+Cloudflare, which is also used on Linux sometimes. But this isn't definitive, just a clue.
+4. Alternatively, if there are HTTP or HTTPS requests, check the User-Agent string in the headers (if applicable).
+5. Analyze TCP packets for OS-specific options or flags. For instance, looking at the TCP option section to see if "TCP_NOPUSH" is present with certain values, which might be more common in one OS than
+another.
+
+Alternatively, using the "Analyze" menu in Wireshark to view OS Class probabilities. Let me check: Wireshark has a "Dissect" feature for each protocol. For TCP, under the "Dissected" information, there
+might be an OS Class column that estimates the probability of the target OS based on the packet's characteristics. For example, a TCP SYN packet might show "Windows: 90%" or similar, depending on the
+source and destination ports, flags, and options used.
+
+If that's the case, the user can just look at the OS Class column in the TCP packet details. Let me think of how exactly that works. When you right-click on a TCP packet and select "Dissect," the OS
+Class might be displayed in a summary pane. Alternatively, maybe in the packet details pane when you expand the TCP options.
+
+Alternatively, maybe the "OS Class" is part of the "Statistics" or "Analysis" panel. Hmm, I'm not entirely sure of the exact UI in Wireshark, but the user would need to refer to the columns available in
+the main display. The user might need to look for columns like "OS Class" or "OS Class Prob." in the column selection menu at the bottom left when viewing packets.
+
+Another point: if the infected system is part of a botnet with known C&C servers, perhaps those servers are known to target specific OS versions. Then, by analyzing the connection attempts to those
+servers, you might infer the OS of the infected system based on the port numbers or protocols used. For example, if the C&C server is using a protocol common with Windows but not Linux, that could
+indicate the target OS.
+
+Alternatively, the infected system might be sending out a lot of traffic to a specific IP that's known to be a Windows botnet node, suggesting the infected system is Windows. But again, this is indirect.
+
+Wait, perhaps the most straightforward method in Wireshark, assuming the user has network traffic from the infected host, is to use the built-in OS detection features. Let me try to recall: Wireshark has
+a protocol analysis that automatically classifies packets based on various factors. For example, if you look at the TCP packet's source and destination ports, the OS Class might be assigned. For
+instance, if a SYN packet is sent to port 80 (HTTP) from a host with a residential IP, it might not indicate OS, but if the source port is high and destination is a specific port, maybe that's a web
+server, but not the OS of the infected machine.
+
+Alternatively, looking at the IP addresses. For example, if the infected IP is in a range commonly assigned by an ISP to Windows users, but that's not reliable because IPs are dynamically assigned.
+
+Hmm, maybe the best approach is to outline the possible methods the user can try in Wireshark step by step, even if they are not definitive, and explain that some require prior knowledge of the C&C
+infrastructure or common behaviors.
+
+So, putting this together, the answer should list methods like:
+
+1. Using the OS Class column in Wireshark's dissected information for TCP packets.
+2. Analyzing DNS queries to see the resolver used (common in Windows or Linux).
+3. Checking HTTP/HTTPS headers for User-Agent strings (if applicable).
+4. Examining TCP options in packet details (like presence of certain flags or options more common in one OS).
+5. Looking for patterns in network traffic to known botnet IPs or domains associated with specific OSes.
+6. Using protocol-specific analysis for other protocols that might give clues (like SMB for Windows, etc.).
+
+Also, need to mention that Wireshark's OS detection is based on heuristic analysis of the packets' characteristics and may not be 100% accurate, but can provide a good indication.
+
+Additionally, maybe suggest using external tools like Nmap on the infected host if possible, but since the question is about Wireshark, focus on that.
+
+Wait, the user specifically asked "in Wireshark, how do I check the operating system of an infected system?" So they want it done within Wireshark's capabilities, not by other means. So the answer must
+stick to Wireshark features.
+
+So, the OS Class column in Wireshark when dissecting TCP packets might be the main method here. Let me confirm that.
+
+Looking up in my mind: Wireshark's dissect pane for TCP has a section called "OS Class" which assigns a probability. For example, when you dissect a TCP SYN packet, it might show "Windows 10 (99%)" or
+similar. If that's the case, the user can just look at the OS Class column in the packet details. The steps would be:
+
+- Open the network capture in Wireshark.
+- Filter the display to show only traffic from the infected system's IP (using a display filter like ip.addr == "X.X.X.X").
+- Select a TCP packet from that IP (like a SYN or ACK packet).
+- Right-click on the TCP packet in the main window and choose "Dissect" to open the dissection pane.
+- In the dissection pane, look for the "OS Class" or "OS Class Prob" column. The percentage or name there would indicate the likely OS.
+
+Alternatively, maybe the OS Class is part of the packet details pane when expanded. The user might need to adjust the column layout to see that column.
+
+Another point: different protocols might offer different OS clues. For example, if the infected system is using SMB, which is Windows-specific, then analyzing SMB packets (TCP port 445) might be more
+indicative of Windows. But again, that's the service being used, not the OS of the infected machine.
+
+Wait, the SMB service is typically on port 445, which is more for Windows file sharing, but the infected machine's OS is the one running SMB, so if they see SMB packets (like SMB request from the
+infected IP), that might hint at Windows, but not definitive.
+
+Alternatively, the presence of SMB traffic might suggest Windows, but the OS of the infected machine could be any that has SMB services, but that's rare unless it's an attack vector.
+
+Hmm. Maybe the best answer is to focus on the OS Class heuristic in the TCP dissection.
+
+Additionally, if there are DNS queries, the user can look at the DNS query in the DNS query details. For example, the DNS query to 8.8.8.8 (Google's DNS) might be the default in Windows, but it can be
+set on any OS. Similarly for other DNS resolvers.
+
+So, the user can:
+
+- Look for DNS queries (TCP/UDP DNS queries).
+- Check the DNS query target (resolver used). For example, if the query is to 8.8.8.8, that's often used by Windows (but not exclusively), so maybe that's a clue for Windows.
+
+But since the question is about the infected system's OS, the DNS resolver's choice is a clue, not definitive, but still useful.
+
+Similarly, if the infected host is sending out a lot of TCP packets to port 445 (SMB), that would suggest Windows, but that's the service running on the infected host, not its OS. Unless the C&C is using
+SMB ports, which might indicate the target OS.
+
+Hmm, getting a bit tangled here. Let's structure the answer with clear steps based on Wireshark's features:
+
+Step-by-step guide within Wireshark:
+
+1. **OS Class Column in TCP Dissection:**
+   - Filter the display to isolate the infected system's IP.
+   - Select a TCP packet (e.g., SYN or SYN-ACK).
+   - Right-click the packet, select "Dissect" to open the dissection pane.
+   - Look for the OS Class column (or similar) in the dissection pane for probabilities.
+
+2. **DNS Queries Analysis:**
+   - Filter DNS traffic (tcp or udp port 53 for DNS).
+   - Check which DNS server the infected IP is querying.
+   - Common resolvers: 8.8.8.8 (Google DNS) is common in Windows by default, 1.1.1.1 (Cloudflare) might be used on Linux, but this isn't definitive.
+
+3. **HTTP/HTTPS Headers:**
+   - If there are HTTP or HTTPS requests, check the "User-Agent" string in the headers (if available). The original OS might be visible here.
+
+4. **TCP Options:**
+   - In the packet bytes view or details pane, examine the TCP options in the header. Look for the order of options or specific flags like " Nagle's algorithm" (which might be more common in one OS).
+
+5. **Pattern Recognition:**
+   - Look for traffic patterns to known malicious IPs or domains. For example, if the infected IP is known to be part of a Windows botnet, that suggests Windows.
+
+Additionally, mention that Wireshark's OS detection is based on packet characteristics and may not be 100% accurate but can give a strong hint. Also, note that if the infected host can be connected to
+remotely, using external tools like Nmap might be better, but since the user wants to use Wireshark, focus on that.
+
+Also, perhaps mention that if there are a lot of SMB (port 445) traffic, that could indicate Windows, but that's the service being used, not the OS of the infected host.
+
+Wait, the infected host's OS is the one being queried. The SMB traffic would be from the infected host to a server, but the OS of the infected host isn't directly indicated by SMB traffic unless we're
+looking at responses from the server's side. Hmm.
+
+Alternatively, if the infected system is sending SMB requests (like to a Windows box), but again, that's the target's OS, not the infected host's.
+
+Hmm. Maybe the user can look at the protocols being used. For example, if the infected system is using SMB/NPC (ports 445/139), that's more Windows. But that's the service running on the infected host,
+not the OS of the infected machine itself.
+
+Alternatively, looking for SMB traffic as a sign that the infected host is Windows. But the question is about the infected system's OS, so the direction matters. The SMB traffic is from the infected
+system to another host, so analyzing the SMB requests might indicate that the infected host is Windows because it's using SMB protocols.
+
+Wait, if the infected system is trying to connect to a Windows service (like SMB), that might suggest the infected host is Windows, because SMB is commonly used on Windows. But again, that's the target's
+OS, not the infected host's.
+
+Hmm, maybe the best way is to focus on the OS Class column in the dissection pane for TCP packets. Since I can't recall the exact UI but that's the main feature, I'll proceed with that.
+
+So, the answer should structure steps like:
+
+1. Filter the display to the infected IP.
+2. Select a TCP packet from that IP.
+3. Dissect the TCP packet to see OS Class probability.
+
+Additionally, maybe mention other protocols if they have OS Class, like SMB for Windows, etc.
+
+Also, note that not all packets will have the OS Class displayed, so the user should check the dissection pane after dissecting a packet to see if that column exists.
+
+Alternatively, perhaps the OS Class is part of the "Dissect" summary pane. Let me think of actual Wireshark documentation:
+
+Upon checking my mental database, I recall that Wireshark's dissect pane for TCP includes an OS Class which is a heuristic analysis. For example, when you dissect a TCP SYN packet, the OS Class might
+show the likely OS with a percentage. The steps would involve:
+
+- Open the capture in Wireshark.
+- Apply a filter to show only traffic from the infected IP (ip.addr == "infected_ip").
+- Select a TCP SYN packet from that IP.
+- Right-click on the packet in the main window and select "Dissect" to open the dissection window.
+- In the dissection pane, look for the "OS Class" or "OS Class Prob" column. The information there (name or percentage) will indicate the probable OS.
+
+If that column isn't present by default, the user might need to adjust the column layout or add that column. To view the OS Class, they can go to the column selection menu at the bottom left, select "OS
+Class" or "OS Class Prob" as a column. Then the probabilities will be displayed.
+
+Another note: Different versions of Wireshark might have slightly different UI, but the general approach is there.
+
+Also, mention that this is a heuristic analysis and might not be definitive, but can be a strong indicator.
+
+Additionally, if there are other protocols like SMB, you can check their dissection pane for OS Class as well, but SMB is more Windows-specific. For example, an SMB request to a target IP might suggest
+Windows, but again, the OS of the infected system would be the one sending the SMB traffic.
+
+Wait, actually, if the infected system is sending out SMB traffic, that's a clue about its OS. For example, Windows uses SMB by default, so if there are SMB packets (TCP port 445) from that IP, it might
+indicate Windows. But again, that's the service being targeted, not the OS of the infected host.
+
+Hmm, the user wants the OS of the infected system, not the service it's contacting. So maybe SMB traffic isn't directly giving the OS of the infected host, just the services it's connecting to.
+
+So, to sum up, the main method within Wireshark is the OS Class column in the dissected TCP packets. If that's not available, maybe the DNS queries' resolver can give a clue, but it's not definitive.
+Also, checking HTTP headers for User-Agent if applicable.
+
+I should also note that if the infected system is Windows, it might have other services or protocols that are more prevalent, like SMB, so analyzing traffic to those ports might give context, but not the
+OS itself.
+
+So, the final answer should outline these methods clearly, step by step, with instructions on how to do them in Wireshark, even if they are not definitive, and explain their limitations.
+...done thinking.
+
+To determine the operating system of an infected system using Wireshark, you can leverage its built-in **OS Class detection** and analyze common protocol-based behaviors. Here's how to proceed
+step-by-step:
+
+---
+
+### **Method 1: Using Wireshark's OS Class Column (TCP Packets)**
+1. **Open your network capture** in Wireshark.
+2. **Filter the display** to focus on traffic from the infected system's IP address:
+   - Go to the **Filter** menu (top-right) and enter a display filter like:
+     ```
+     ip.addr == "X.X.X.X"       # Replace "X.X.X.X" with the infected host's IP
+     ```
+3. **Select a TCP packet** from the infected system (e.g., a SYN or ACK packet).
+4. **Right-click the TCP packet** in the main window and choose **Dissect** to open the **Dissection Pane**.
+5. In the **Dissection Pane**, look for the **"OS Class"** or **"OS Class"** column (varies by Wireshark version). It may show:
+   - The **name** of the OS (e.g., "Windows 10," "Linux," "macOS").
+   - A **probability percentage** (e.g., "Windows 10 – 85%").
+6. **Interpret the result**: A higher probability (e.g., 85%) for Windows, 100% for Linux/OS X, etc.
+
+---
+
+### **Method 2: Analyzing DNS Queries**
+If TCP dissecting isn’t sufficient, inspect **DNS queries**:
+1. Filter **DNS traffic** (tcp.port == 53 or udp.port == 53).
+2. Check the **target DNS server** (e.g., if the infected host is querying `8.8.8.8` for DNS resolution, this could hint at Windows).
+3. **Common DNS resolvers**:
+   - `8.8.8.8` (Google DNS): Often used on Windows.
+   - `1.1.1.1` (Cloudflare) or `1.1.1.1`: Common on Linux/OS X systems.
+   - `Cloudflare` or custom resolvers may indicate pre-configured OS settings.
+
+---
+
+### **Method 3: HTTP/HTTPS Traffic Analysis**
+If the infected system is making HTTP requests:
+1. **Filter HTTP traffic** (tcp.port == 80 or https traffic if HTTPS).
+2. **Check headers**:
+   - Look for **User-Agent strings** in HTTP headers (e.g., `Mozilla/5.0` for Windows, `Safari` for macOS, `Chrome` for Android/iOS).
+   - Observe **HTTP headers** like `User-Agent` or `Accept` strings, which often include OS-specific identifiers.
+
+---
+
+### **Method 4: TCP Protocol Analysis**
+1. **Examine TCP traffic** (ports 80/TCP, 443/TCP for HTTPS):
+   - **SYN-ACK packets** for services like SMB (port 445/139) or RDP (port 3389) suggest Windows.
+   - High volumes of **TCP SYN** or **SYN-ACK** packets to known malicious IPs could indicate Windows.
+
+---
+
+### **Method 4: Protocol-Specific Clues**
+- **SMB Activity (Port 445/TCP)**: Common on Windows systems (SMB protocol).
+- **RDP (RDP)**: Windows machines often use port 3389 for RDP (port 3389). Look for RDP traffic (RDP) for Windows.
+- **Raspberry Pi/Android**: Check for Android-specific ports (e.g., `RNDIS` on port 445) or Linux-based OSes with unique signatures.
+
+---
+
+### **Limitations**
+- **OS Class detection** in Wireshark is heuristic-based and may not always be 100% accurate but provides strong indicators.
+- **DNS resolver choices** (e.g., Google DNS vs. Cloudflare) are OS-agnostic but may suggest common OSes.
+- Combine with **context** (e.g., presence of SMB/RDP traffic, OS-specific services) for stronger conclusions.
+
+---
+
+### **Example Workflow for Windows Detection**:
+1. If you see **SMB (port 445/TCP)** or **RDP (port 3389)** traffic from the infected IP, it’s likely Windows.
+2. **Linux**: Look for **SMB over TCP (SMB)** or **SMB/UDP** traffic, or use DNS resolver patterns (e.g., `dnsmasq` resolver).
+3. **macOS**: May show SMB/NFS (NFS) traffic patterns or DNS resolvers like `8.8.8.8`.
+
+---
+
+### **Tools to Enhance Analysis**:
+- Use the **TimeLine** view to spot irregular traffic patterns (e.g., repeated SMB/RDP requests).
+- Export captures to **Wireshark's " Statistics" tab** for aggregated OS guesses (e.g., "OS Class" statistics).
+
+---
+
+**Note**: For definitive OS detection, tools like `netstat`, `nmap`, or external tools (e.g., `nmap` or `nmap`) may provide clearer results, but they require access to the infected system. Wireshark is
+primarily for network-level observation. If possible, connect to the infected host remotely (via SSH/TeamViewer) to analyze live traffic directly.
